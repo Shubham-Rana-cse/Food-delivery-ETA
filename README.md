@@ -82,30 +82,3 @@ npm run dev              # http://localhost:5173
 ```
 
 No CORS config needed in dev — Vite proxies `/api` to Flask.
-
-## The one thing that will bite you
-
-At training time you encoded with `drop_first=True`. A single order contains one
-category per column, so re-running `get_dummies(drop_first=True)` at inference
-would delete it and hand the model an all-zero row. `predictor.build_feature_frame`
-instead one-hots **without** `drop_first`, then `reindex(columns=feature_columns,
-fill_value=0)`. Dropped baselines vanish; absent categories fill with 0; a
-baseline-category order correctly becomes all zeros for that group.
-
-Verified: `Road_traffic_density=High` (the dropped baseline) → `_Jam=_Low=_Medium=0`.
-
-## Deploy
-
-- **Backend** → Render / Railway / Hugging Face Spaces. `gunicorn app:app`.
-  The 1.45 MB artefact commits straight to git; no LFS.
-- **Frontend** → Vercel / Netlify / GitHub Pages. Set `VITE_API_BASE` to the
-  deployed API URL and set `ALLOWED_ORIGINS` on the backend to match.
-- Pin `lightgbm` and `scikit-learn` to the versions you trained with, or
-  `joblib.load` may fail to unpickle.
-
-## Not done here
-
-- No prediction intervals beyond ±MAE. Conformal prediction would give an honest,
-  input-dependent window (report §13).
-- `Road_traffic_density` is a clock heuristic, not live traffic.
-- Semi-Urban predictions rest on 156 training rows. The UI warns; believe the warning.
