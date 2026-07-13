@@ -16,7 +16,7 @@ import utils
 from weather import get_weather
 
 app = Flask(__name__)
-CORS(app, origins=os.getenv("ALLOWED_ORIGINS").split(","))
+CORS(app, origins=os.getenv("ALLOWED_ORIGINS","http://localhost:5173").split(","))
 
 DEFAULT_LAT = float(os.getenv("DEFAULT_LAT", 30.3165))   # Dehradun
 DEFAULT_LON = float(os.getenv("DEFAULT_LON", 78.0322))
